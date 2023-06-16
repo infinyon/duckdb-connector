@@ -7,7 +7,7 @@ build: $(DUCKDB_LIB_DIR)/libduckdb.dylib
 	cdk build -p duckdb-sink --release release
 
 test_md: $(DUCKDB_LIB_DIR)/libduckdb.dylib
-	DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR) cdk test  --release release  -p duckdb-sink --config duckdb-md.yaml --secrets .env
+	DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR) cdk test  --release release  -p duckdb-sink --config test/duckdb-md.yaml --secrets .env
 
 test_local:
 	cdk test  --release release  -p duckdb-sink --config duckdb-local.yaml
