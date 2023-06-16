@@ -1,75 +1,78 @@
-# Fluvio SQL Sink connector
-The SQL Sink connector reads records from Fluvio topic, applies configured transformations, and 
+# InfinyOn DuckDB Sink connector
+The DuckDB Sink connector reads records from Fluvio topic, applies configured transformations, and 
 sends new records to the SQL database (via `INSERT` statements). 
 
-## Supported databases
-1. PostgreSQL
-2. SQLite
 
-### Data types
-| Model           | PostgreSQL                   | SQLite       |                                          
-|:----------------|:-----------------------------|:-------------|
-| Bool            | BOOL                         | BOOLEAN      |
-| Char            | CHAR                         | INTEGER      |
-| SmallInt        | SMALLINT, SMALLSERIAL, INT2  | INTEGER      |
-| Int             | INT, SERIAL, INT4            | INTEGER      |
-| BigInt          | BIGINT, BIGSERIAL, INT8      | BIGINT, INT8 |
-| Float           | REAL, FLOAT4                 | REAL         |
-| DoublePrecision | DOUBLE PRECISION, FLOAT8     | REAL         |
-| Text            | VARCHAR, CHAR(N), TEXT, NAME | TEXT         |
-| Bytes           | BYTEA                        | BLOB         |
-| Numeric         | NUMERIC                      | REAL         |
-| Timestamp       | TIMESTAMP                    | DATETIME     |
-| Date            | DATE                         | DATE         |
-| Time            | TIME                         | TIME         |
-| Uuid            | UUID                         | BLOB, TEXT   |
-| Json            | JSON, JSONB                  | TEXT         |
+# SQL Model to DuckDB types mapping
+
+The DuckDB Sink connector expects the data in [Fluvio SQL Model](./crates/fluvio-model-sql/README.md) in JSON format.
+In order to work with different data formats or data structures.
+
+The following table shows the mapping between SQL Model and DuckDB types:
+
+| Model           | DuckDB    |                                          
+|:----------------|:----------|
+| Bool            | bool      |
+| Char            | str       |
+| SmallInt        | i16       |
+| Int             | i32       |
+| BigInt          | i64       |
+| Float           | f32       |
+| DoublePrecision | f64       |
+| Text            | str       |
+| Bytes           | [u8]      |
+| Numeric         | TODO      |
+| Timestamp       | Timestamp |
+| Date            | TODO      |
+| Time            | TODO      |
+| Uuid            | UUID      |
+| Json            | JSON      |
+
+# Configuration
+
+This connector can be configured using the following properties:
+## URL
+
+A URL is path to duckdb database path.  It can be any expression duckdb supports.  For example, to use a local database, it can be `my_duckdb_file`.
+
+To connect to Motherduck server, use prefix: `md`.  For example, `md://motherduck_path`.  Please see MotherDuck documentation for more details.
+
+## Example of opening to local duckdb
+```yaml
+apiVersion: 0.1.0
+meta:
+  version: 0.1.3
+  name: duckdb-connector
+  type: duckdb-sink
+  topic: fluvio-topic-source
+  create-topic: true
+duckdb:
+  url: 'local.db'    # local duckdb
+```
 
 ## Transformations
-The SQL Sink connector expects the data in [Fluvio SQL Model](./crates/fluvio-model-sql/README.md) in JSON format.
-In order to work with different data formats or data structures, `transformations` can be applied.
+
+ `transformations` can be applied.
 The transformation is a SmartModule pulled from the SmartModule Hub. Transformations are chained according to the order
 in the config. If a SmartModule requires configuration, it is passed via `with` section of `transforms` entry. 
 
-## Configuration
-| Option       | default | type   | description                                           |
-|:-------------|:--------| :---   |:------------------------------------------------------|
-| url          |    -    | String | SQL database conection url                            |
 
-### Basic example:
-```yaml
-apiVersion: 0.1.0
-meta:
-  version: 0.2.3
-  name: my-sql-connector
-  type: sql-sink
-  topic: sql-topic
-  create-topic: true
-  secrets:
-    - name: DB_USERNAME
-    - name: DB_PASSWORD
-    - name: DB_HOST
-    - name: DB_PORT
-    - name: DB_NAME
-sql:
-  url: 'postgresql://${{ secrets.DB_USERNAME }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}'
-```
 
-### Secrets
+## Secrets
 
-The connector can use secrets in order to hide sensitive information.
+The connector can use secrets in order to hide sensitive information.  The example below uses secrets to pass the token to MotherDuck server.
 
 ```yaml
 apiVersion: 0.1.0
 meta:
-  version: 0.2.3
-  name: my-sql-connector
-  type: sql-sink
+  version: 0.1.0
+  name: motherduck-connector
+  type: duckdb-sink
   topic: sql-topic
   secrets:
-    - name: DATABASE_URL
-sql:
-  url: ${{ secrets.DATABASE_URL }}
+    - name: MD_TOKEN
+duckdb:
+  url: "md:?token=${{ secrets.MD_TOKEN }}"
 ```
 ## Usage Example
 Let's look at the example of the connector with one transformation named [infinyon/json-sql](https://github.com/infinyon/fluvio-connectors/blob/main/smartmodules/json-sql/README.md). The transformation takes
@@ -95,15 +98,15 @@ Connector configuration file:
 # connector-config.yaml
 apiVersion: 0.1.0
 meta:
-  version: 0.2.3
+  version: 0.1.0
   name: json-sql-connector
-  type: sql-sink
+  type: duckdb-sink
   topic: sql-topic
   create-topic: true
   secrets:
-    - name: DATABASE_URL
-sql:
-  url: ${{ secrets.DATABASE_URL }}
+    - name: MD_TOKEN
+duckdb:
+  url: "md:?token=${{ secrets.MD_TOKEN }}"
 transforms:
   - uses: infinyon/json-sql
     with:
