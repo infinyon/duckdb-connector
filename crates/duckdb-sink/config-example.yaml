@@ -1,0 +1,26 @@
+meta:
+  version: latest
+  name: my-duckdb-connector
+  type: duckdb-sink
+  topic: sql-topic
+  create-topic: true
+duckdb:
+  url: 'my_duckdb'
+transforms:
+  - uses: infinyon/json-sql@0.1.0
+    invoke: insert
+    with:
+      mapping:
+        table: "topic_message"
+        map-columns:
+          "device_id":
+            json-key: "payload.device.device_id"
+            value:
+              type: "int"
+              default: "0"
+              required: true
+          "record":
+            json-key: "$"
+            value:
+              type: "jsonb"
+              required: true

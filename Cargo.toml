@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "crates/duckdb-sink",
+]
+resolver = "2"
+
+[profile.release-lto]
+inherits = "release"
+lto = true
+
+[workspace.dependencies]
+fluvio = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.11" }
+fluvio-connector-common = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.11" }
+fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", branch = "main" }
