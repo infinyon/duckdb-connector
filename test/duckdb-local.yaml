@@ -1,0 +1,57 @@
+apiVersion: 0.1.0
+meta:
+  version: 0.2.0
+  name: helsinki-sql
+  type: duckdb-sink
+  topic: helsinki
+  secrets:
+    - name: MD_TOKEN
+
+
+duckdb:
+  url: "speed.db"
+transforms:
+  - uses: infinyon/jolt@0.1.0
+    with:
+      spec:
+        - operation: shift
+          spec:
+            payload:
+              VP:
+                lat: "lat"
+                long: "long"
+                veh: "vehicle"
+                route: "route"
+                spd: "speed"
+                tst: "tst"
+  - uses: infinyon/json-sql@0.1.0
+    with:
+      mapping:
+        table: "speed"
+        map-columns:
+          "lat":
+            json-key: "lat"
+            value:
+              type: "float"
+              default: "0"
+              required: true
+          "long":
+            json-key: "long"
+            value:
+              type: "float"
+              required: true
+          "vehicle":
+            json-key: "vehicle"
+            value:
+              type: "int"
+              required: true
+          "speed":
+            json-key: "speed"
+            value:
+              type: "float"
+              required: true
+          "time":
+            json-key: "tst"
+            value:
+              type: "timestamp"
+              required: true
