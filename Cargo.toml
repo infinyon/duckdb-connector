@@ -23,8 +23,3 @@ duckdb = { version = "0.8.1"}
 fluvio = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.11" }
 fluvio-connector-common = { features = ["derive"], git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.11" }
 fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", tag = "v0.3.0" }
-
-
-[profile.release-lto]
-inherits = "release"
-lto = true

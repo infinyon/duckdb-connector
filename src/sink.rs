@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use url::Url;
 
 use fluvio::Offset;
-use fluvio_connector_common::{LocalBoxSink, Sink};
+use fluvio_connector_common::{LocalBoxSink, Sink, tracing::info};
 use fluvio_model_sql::Operation;
 
 use crate::{config::DuckDBConfig, db::DuckDB};
@@ -25,6 +25,7 @@ impl DuckDBSink {
 impl Sink<Operation> for DuckDBSink {
     async fn connect(self, _offset: Option<Offset>) -> Result<LocalBoxSink<Operation>> {
         let db = DuckDB::connect(self.url.as_str()).await?;
+        info!("connected to duckdb database");
         let unfold = futures::sink::unfold(db, |mut db: DuckDB, record: Operation| async move {
             db.execute(record).await?;
             Ok::<_, anyhow::Error>(db)
