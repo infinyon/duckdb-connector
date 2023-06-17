@@ -2,7 +2,7 @@ ARCH=$(shell uname -m)
 DUCKDB_VER=v0.8.1
 DUCKDB_LIB=duckdb_lib
 LIB_NAME=$(if $(findstring arm64,$(ARCH)),libduckdb.dylib,libduckdb.so)
-TARGET_FLAG=$(if $(findstring arm64,$(ARCH)),,--target aarch64-unknown-linux-musl)
+TARGET_FLAG=$(if $(findstring arm64,$(ARCH)),,--target aarch64-unknown-linux-gnu)
 FULL_LIB_NAME=$(DUCKDB_LIB_DIR)/$(LIB_NAME)
 
 # We need to use dynamlic linking in order to invoke motherduck
