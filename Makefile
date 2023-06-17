@@ -2,7 +2,7 @@ ARCH=$(shell uname -m)
 DUCKDB_VER=v0.8.1
 DUCKDB_LIB=duckdb_lib
 LIB_NAME=$(if $(findstring arm64,$(ARCH)),libduckdb.dylib,libduckdb.so)
-TARGET_FLAG=$(if $(findstring arm64,$(ARCH)),,--target aarch64-unknown-linux-gnu)
+TARGET_FLAG=$(if $(TARGET),--target $(TARGET),)
 FULL_LIB_NAME=$(DUCKDB_LIB_DIR)/$(LIB_NAME)
 
 # We need to use dynamlic linking in order to invoke motherduck
@@ -13,6 +13,7 @@ export DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 build: $(FULL_LIB_NAME)
 	cdk build -p duckdb-sink --release release $(TARGET_FLAG)
 
+# to run as linux gnu: make test_md TARGET=aarch64-unknown-linux-gnu
 test_md: $(FULL_LIB_NAME)
 	cdk test  --release release  -p duckdb-sink --config test/duckdb-md.yaml --secrets .env $(TARGET_FLAG)
 
