@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use url::Url;
 
 use fluvio::Offset;
-use fluvio_connector_common::{LocalBoxSink, Sink, tracing::info};
+use fluvio_connector_common::{tracing::info, LocalBoxSink, Sink};
 use fluvio_model_sql::Operation;
 
 use crate::{config::DuckDBConfig, db::DuckDB};
