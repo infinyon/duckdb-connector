@@ -65,7 +65,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        rust-target: [aarch64-unknown-linux-muslt]
+        rust-target: [aarch64-unknown-linux-musl]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
