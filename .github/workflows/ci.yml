@@ -66,6 +66,7 @@ jobs:
     env:
       TARGET: ${{ matrix.rust-target }}
       TARGET_CC: zig
+      CC: zig
     strategy:
       matrix:
         rust-target: [aarch64-unknown-linux-musl]
