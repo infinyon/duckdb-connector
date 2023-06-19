@@ -65,6 +65,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TARGET: ${{ matrix.rust-target }}
+      TARGET_CC: zig
     strategy:
       matrix:
         rust-target: [aarch64-unknown-linux-musl]
@@ -82,6 +83,8 @@ jobs:
           version: "14.0"
       - name: Install zig
         run: ./actions/zig-install.sh ${{ matrix.os }}
+      - name: test zig
+        run: zig version
       - uses: Swatinem/rust-cache@v2
       - name: Build
         run: make build
