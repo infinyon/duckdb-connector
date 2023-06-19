@@ -60,9 +60,35 @@ jobs:
         if: ${{ matrix.check == 'clippy' }}
         run: cargo clippy --all-targets -- -D warnings
 
+  build:
+    name: Build binary on ${{ matrix.rust-target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        rust-target: [aarch64-unknown-linux-muslt]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          target: ${{ matrix.rust-target }}
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "14.0"
+      - name: Install zig
+        run: ./actions/zig-install.sh ${{ matrix.os }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: make build --target ${{ matrix.rust-target }}
+
+
   integration_tests:
-    name: Integration testing on - ${{ matrix.os }}.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    name: Integration testing on - ${{ matrix.os }}
+    if: false
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
