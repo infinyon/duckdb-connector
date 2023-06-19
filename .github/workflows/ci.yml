@@ -72,7 +72,7 @@ jobs:
       - name: Install Rust stable
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
+          toolchain: stable
           target: ${{ matrix.rust-target }}
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
