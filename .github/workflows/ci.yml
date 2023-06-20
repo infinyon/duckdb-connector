@@ -94,6 +94,8 @@ jobs:
           fluvio install cdk
           ls -l ~/.fluvio/bin
           echo "~/.fluvio/bin" >> $GITHUB_PATH
+      - name: Test CDK
+        run: cdk help   
       - name: Build
         env:
           GH_TOKEN: ${{ github.token }}
