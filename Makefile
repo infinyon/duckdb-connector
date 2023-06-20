@@ -56,7 +56,7 @@ clean:
 FLUVIO_BUILD_ZIG ?= zig
 #FLUVIO_BUILD_LLD ?= lld
 # used by CC crates to find CC which is replaced by zig
-CC_aarch64-unknown-linux-gnu=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
+CC_aarch64-unknown-linux-gnu-gcc=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
 #CC_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cc
 #CXX_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cxx
 #CC_x86_64_unknown_linux_musl=$(PWD)/build-scripts/x86_64-linux-musl-zig-cc
