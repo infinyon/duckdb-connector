@@ -35,13 +35,14 @@ impl DuckDB {
     }
 }
 
+#[allow(clippy::single_char_add_str)]
 pub(crate) fn insert(conn: &DuckDbConnection, row: Insert) -> Result<()> {
     let mut query = String::from("INSERT INTO ");
     query.push_str(&row.table);
     query.push_str(" (");
     for value in &row.values {
         query.push_str(&value.column);
-        query.push_str(',');
+        query.push_str(",");
     }
     query.pop();
     query.push_str(") ");
@@ -50,7 +51,7 @@ pub(crate) fn insert(conn: &DuckDbConnection, row: Insert) -> Result<()> {
         query.push_str("?,");
     }
     query.pop();
-    query.push_str(')');
+    query.push_str(")");
 
     let mut stmt = conn.prepare(&query)?;
 

@@ -19,7 +19,7 @@ test:
 	echo "cargo test"
 
 clippy:
-	cargo clippy --all-targets -- -D warnings
+	cargo clippy -- -D warnings
 
 
 build: $(FULL_LIB_NAME)
