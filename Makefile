@@ -8,9 +8,9 @@ TARGET_FLAG=$(if $(TARGET),--target $(TARGET),)
 FULL_LIB_NAME=$(DUCKDB_LIB_DIR)/$(LIB_NAME)
 CDK=$(HOME)/.fluvio/bin/cdk
 
-# We need to use dynamlic linking in order to invoke motherduck
+# We need to use dynamlic linking for OSX
 export DUCKDB_LIB_DIR=$(PWD)/$(DUCKDB_LIB)/$(DUCKDB_VER)
-export LD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
+#export LD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 export DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 
 check-fmt:
@@ -27,8 +27,15 @@ build: $(FULL_LIB_NAME)
 	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
 
 
+build_bundled: 
+	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
+
+
 # to run as linux gnu: make test_md TARGET=aarch64-unknown-linux-gnu
-test_md: $(FULL_LIB_NAME)
+test_md_dynamic: $(FULL_LIB_NAME)
+	$(CDK) test  --release $(RELEASE)  --config test/duckdb-md.yaml --secrets .env $(TARGET_FLAG)
+
+test_md_bundled: 
 	$(CDK) test  --release $(RELEASE)  --config test/duckdb-md.yaml --secrets .env $(TARGET_FLAG)
 
 test_local:
@@ -50,13 +57,13 @@ clean:
 
 .EXPORT_ALL_VARIABLES:
 #DUCKDB_LIB_DIR=$(PWD)/$(DUCKDB_LIB)/$(DUCKDB_VER)
-#DUCKDB_STATIC=1
+DUCKDB_STATIC=1
 #LD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 #DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
-FLUVIO_BUILD_ZIG ?= zig
+#FLUVIO_BUILD_ZIG ?= zig
 #FLUVIO_BUILD_LLD ?= lld
 # used by CC crates to find CC which is replaced by zig
-CC_aarch64-unknown-linux-gnu=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
+#CC_aarch64-unknown-linux-gnu=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
 #CC_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cc
 #CXX_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cxx
 #CC_x86_64_unknown_linux_musl=$(PWD)/build-scripts/x86_64-linux-musl-zig-cc
