@@ -92,8 +92,6 @@ jobs:
       - name: install CDK
         run: |
           fluvio install cdk
-          ls -l ~/.fluvio/bin
-          echo "~/.fluvio/bin" >> $GITHUB_PATH
       - name: Test CDK
         run: cdk help   
       - name: Build
