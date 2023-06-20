@@ -22,7 +22,7 @@ clippy:
 	cargo clippy -- -D warnings
 
 
-build: $(FULL_LIB_NAME)
+build: 
 	cdk build --release $(RELEASE) $(TARGET_FLAG)
 
 
