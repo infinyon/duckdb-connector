@@ -80,10 +80,8 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "14.0"
-  #    - name: Install zig
-  #      run: ./actions/zig-install.sh ${{ matrix.os }}
-  #    - name: test zig
-  #      run: zig version
+      - name: Install zig
+        run: ./actions/zig-install.sh ${{ matrix.os }}
       - uses: Swatinem/rust-cache@v2
       - name: Install Fluvio
         run: |

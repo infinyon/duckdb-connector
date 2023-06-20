@@ -53,7 +53,7 @@ clean:
 #DUCKDB_STATIC=1
 #LD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 #DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
-#FLUVIO_BUILD_ZIG ?= zig
+FLUVIO_BUILD_ZIG ?= zig
 #FLUVIO_BUILD_LLD ?= lld
 # used by CC crates to find CC which is replaced by zig
 #CC_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cc
