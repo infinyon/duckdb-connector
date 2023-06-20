@@ -2132,6 +2132,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84f1e0bc90f97fb7fe64f5d1d8450f4eef8db725efcf7a29a30b7fdfd2705d81"
 dependencies = [
  "autocfg",
+ "cc",
  "flate2",
  "pkg-config",
  "serde",
