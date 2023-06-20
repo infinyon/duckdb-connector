@@ -90,7 +90,9 @@ jobs:
           ./actions/fluvio-install.sh
           echo "~/.fluvio/bin" >> $GITHUB_PATH
       - name: install CDK
-        run: fluvio install cdk
+        run: |
+          fluvio install cdk
+          ls -l ~/.fluvio/bin
       - name: Build
         env:
           GH_TOKEN: ${{ github.token }}
