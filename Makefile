@@ -25,6 +25,7 @@ clippy:
 build:
 	echo "github path path $(GITHUB_PATH) "
 	echo "path $(PATH) "
+	ls ~/.fluvio/bin
 	cdk build --release $(RELEASE) $(TARGET_FLAG)
 
 
