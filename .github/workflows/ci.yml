@@ -65,12 +65,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TARGET: ${{ matrix.rust-target }}
-      #TARGET_CC: zig
-      #CC: "zig cc -target ${{ matrix.rust-target }}"
-      #CXX: "zig c++ -target ${{ matrix.rust-target }}"
     strategy:
       matrix:
-        rust-target: [aarch64-unknown-linux-musl]
+        rust-target: [aarch64-unknown-linux-gnu]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
@@ -83,10 +80,10 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "14.0"
-      - name: Install zig
-        run: ./actions/zig-install.sh ${{ matrix.os }}
-      - name: test zig
-        run: zig version
+  #    - name: Install zig
+  #      run: ./actions/zig-install.sh ${{ matrix.os }}
+  #    - name: test zig
+  #      run: zig version
       - uses: Swatinem/rust-cache@v2
       - name: Build
         run: make build
