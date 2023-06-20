@@ -86,7 +86,9 @@ jobs:
   #      run: zig version
       - uses: Swatinem/rust-cache@v2
       - name: Install Fluvio
-        run: ./actions/fluvio-install.sh
+        run: |
+          ./actions/fluvio-install.sh
+          echo "~/.fluvio/bin" >> $GITHUB_PATH
       - name: install CDK
         run: fluvio install cdk
       - name: Build
