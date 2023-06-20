@@ -56,14 +56,12 @@ clean:
 FLUVIO_BUILD_ZIG ?= zig
 #FLUVIO_BUILD_LLD ?= lld
 # used by CC crates to find CC which is replaced by zig
-CC_aarch64-unknown-linux-gnu-gcc=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
+CC_aarch64-unknown-linux-gnu=$(PWD)/build-scripts/aarch64-unknown-linux-gnu-zig-cc
 #CC_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cc
 #CXX_aarch64_unknown_linux_musl=$(PWD)/build-scripts/aarch64-linux-musl-zig-cxx
 #CC_x86_64_unknown_linux_musl=$(PWD)/build-scripts/x86_64-linux-musl-zig-cc
 #CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=$(PWD)/build-scripts/ld.lld
 #CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C link-arg=-lstdc++"
-#CC="zig cc -target aarch64-linux-musl"
-#CXX="zig c++ -target aarch64-linux-musl"
 #CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=$(PWD)/build-scripts/ld.lld
 #RUSTFLAGS="-C link-arg=-lstdc++"
 #RUSTFLAGS="-C target-feature=-crt-static"
