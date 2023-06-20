@@ -22,7 +22,9 @@ clippy:
 	cargo clippy -- -D warnings
 
 
-build: 
+build:
+	echo "github path path $(GITHUB_PATH) "
+	echo "path $(PATH) "
 	cdk build --release $(RELEASE) $(TARGET_FLAG)
 
 
