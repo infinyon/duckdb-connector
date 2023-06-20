@@ -23,20 +23,21 @@ clippy:
 	cargo clippy -- -D warnings
 
 
-build: $(FULL_LIB_NAME)
+build: 
+	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
+
+# building as dynamic library, not used now
+build_dyn: $(FULL_LIB_NAME)
 	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
 
 
-build_bundled: 
-	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
-
-
-# to run as linux gnu: make test_md TARGET=aarch64-unknown-linux-gnu
-test_md_dynamic: $(FULL_LIB_NAME)
+test_md: 
 	$(CDK) test  --release $(RELEASE)  --config test/duckdb-md.yaml --secrets .env $(TARGET_FLAG)
 
-test_md_bundled: 
+# build and test using dynamic library
+test_md_dyn: $(FULL_LIB_NAME)
 	$(CDK) test  --release $(RELEASE)  --config test/duckdb-md.yaml --secrets .env $(TARGET_FLAG)
+
 
 test_local:
 	$(CDK) test  --release $(RELEASE)  --config duckdb-local.yaml
