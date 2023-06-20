@@ -86,6 +86,8 @@ jobs:
   #      run: zig version
       - uses: Swatinem/rust-cache@v2
       - name: Build
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: make build
 
 
