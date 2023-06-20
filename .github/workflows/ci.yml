@@ -46,7 +46,7 @@ jobs:
       - name: Cargo test
         if: ${{ matrix.check == 'test' }}
         run: |
-          cargo test
+           make test
       - name: Cargo check
         if: ${{ matrix.check == 'check' }}
         run: |
@@ -54,11 +54,11 @@ jobs:
 
       - name: Cargo fmt
         if: ${{ matrix.check == 'fmt' }}
-        run: cargo fmt -- --check
+        run: make check-fmt
 
       - name: Cargo clippy
         if: ${{ matrix.check == 'clippy' }}
-        run: cargo clippy --all-targets -- -D warnings
+        run: make clippy
 
   build:
     name: Build binary on ${{ matrix.rust-target }}
@@ -85,6 +85,10 @@ jobs:
   #    - name: test zig
   #      run: zig version
       - uses: Swatinem/rust-cache@v2
+      - name: Install Fluvio
+        run: ./actions/fluvio-install.sh
+      - name: install CDK
+        run: fluvio install cdk
       - name: Build
         env:
           GH_TOKEN: ${{ github.token }}

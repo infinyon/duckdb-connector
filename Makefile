@@ -12,6 +12,16 @@ export DUCKDB_LIB_DIR=$(PWD)/$(DUCKDB_LIB)/$(DUCKDB_VER)
 export LD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 export DYLD_LIBRARY_PATH=$(DUCKDB_LIB_DIR)
 
+check-fmt:
+	cargo fmt -- --check
+
+test:
+	echo "cargo test"
+
+clippy:
+	cargo clippy --all-targets -- -D warnings
+
+
 build: $(FULL_LIB_NAME)
 	cdk build --release $(RELEASE) $(TARGET_FLAG)
 
