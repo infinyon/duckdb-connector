@@ -1,0 +1,169 @@
+name: CI
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging
+      - trying
+  pull_request:
+    branches: [main]
+    paths:
+      - "**"
+      - "!/*.md"
+      - "!/**.md"
+
+jobs:
+  check:
+    name: Rust Check - ${{ matrix.check }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [stable]
+        rust-target: [x86_64-unknown-linux-musl]
+        check: [test, check, fmt, clippy]
+    env:
+      RUST_BACKTRACE: full
+      RUSTV: ${{ matrix.rust }}
+      TARGET: ${{ matrix.rust-target }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          target: ${{ matrix.rust-target }}
+          override: true
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.rust-target }}-${{ matrix.check }}
+      - name: Cargo test
+        if: ${{ matrix.check == 'test' }}
+        run: |
+           make test
+      - name: Cargo check
+        if: ${{ matrix.check == 'check' }}
+        run: |
+          cargo check --all-targets
+
+      - name: Cargo fmt
+        if: ${{ matrix.check == 'fmt' }}
+        run: make check-fmt
+
+      - name: Cargo clippy
+        if: ${{ matrix.check == 'clippy' }}
+        run: make clippy
+
+  build:
+    name: Build binary on ${{ matrix.rust-target }}
+    runs-on: ${{ matrix.os }}
+    env:
+      TARGET: ${{ matrix.rust-target }}
+    strategy:
+      matrix:
+        rust-target: [aarch64-unknown-linux-gnu]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.rust-target }}
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "14.0"
+      - name: Install zig
+        run: ./actions/zig-install.sh ${{ matrix.os }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Fluvio
+        run: |
+          ./actions/fluvio-install.sh
+          echo "$HOME/.fluvio/bin" >> $GITHUB_PATH
+      - name: install CDK
+        run: |
+          fluvio install cdk
+      - name: Test CDK
+        run: cdk help   
+      - name: Build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run:
+          make build
+
+
+  integration_tests:
+    name: Integration testing on - ${{ matrix.os }}
+    if: false
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+    env:
+      RUST_BACKTRACE: full
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install musl-tools
+        run: |
+          set -ex
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+      - name: Install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          target: x86_64-unknown-linux-musl
+          override: true
+      - uses: AbsaOSS/k3d-action@v2.4.0
+        name: "Create fluvio k3d Cluster"
+        with:
+          cluster-name: "fluvio"
+          args: --timeout 5m
+      - name: Ensure k3d cluster is ready
+        run: |
+          sleep 5
+          ./actions/k3d-check.sh
+      - name: Install Fluvio Local Cluster
+        timeout-minutes: 10
+        uses: infinyon/fluvio@master
+        with:
+          cluster-type: k3d
+          version: stable
+      - name: Check Fluvio Installation
+        run: |
+          sleep 10
+          fluvio version
+          fluvio topic list
+          fluvio topic create foobar
+          sleep 3
+          echo foo | fluvio produce foobar
+          fluvio consume foobar -B -d
+      - name: Login to Fluvio Cloud
+        run: |
+          fluvio cloud login --email ${{ secrets.DEV_HUB_USER_EMAIL }} --password ${{ secrets.DEV_HUB_USER_PASSWORD }} --remote ${{ vars.DEV_CLOUD_URL }}
+          fluvio profile switch k3d-fluvio
+      - name: Install Fluvio CDK
+        run: fluvio install cdk
+      - name: Run Integration Test
+        timeout-minutes: 20
+        run: make integration_tests
+
+  done:
+    name: Done
+    needs:
+      - check
+      - integration_tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Done
+        run: echo "Done!"

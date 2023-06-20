@@ -4,7 +4,12 @@ mod model;
 mod sink;
 
 use config::DuckDBConfig;
-use fluvio_connector_common::{connector, consumer::ConsumerStream, tracing::{trace, info}, Result, Sink};
+use fluvio_connector_common::{
+    connector,
+    consumer::ConsumerStream,
+    tracing::{info, trace},
+    Result, Sink,
+};
 use fluvio_model_sql::Operation;
 use futures::SinkExt;
 use sink::DuckDBSink;

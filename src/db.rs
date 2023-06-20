@@ -35,6 +35,7 @@ impl DuckDB {
     }
 }
 
+#[allow(clippy::single_char_add_str)]
 pub(crate) fn insert(conn: &DuckDbConnection, row: Insert) -> Result<()> {
     let mut query = String::from("INSERT INTO ");
     query.push_str(&row.table);
