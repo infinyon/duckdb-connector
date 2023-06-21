@@ -26,7 +26,7 @@ jobs:
       - name: Install Fluvio CDK
         run: fluvio install cdk --develop
       - name: Fluvio Login
-        run: fluvio cloud login --email ${{ secrets.DEV_HUB_USER_EMAIL }} --password ${{ secrets.DEV_HUB_USER_PASSWORD }} --remote ${{ vars.DEV_CLOUD_URL }}
+        run: fluvio cloud login --email ${{ secrets.DEV_HUB_USER_EMAIL }} --password ${{ secrets.DEV_HUB_USER_PASSWORD }} --remote https://dev.infinyon.cloud
       - uses: actions/checkout@v3
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
@@ -62,7 +62,7 @@ jobs:
       - name: Install Fluvio CDK
         run: fluvio install cdk --develop
       - name: Fluvio Login
-        run: fluvio cloud login --email ${{ secrets.DEV_HUB_USER_EMAIL }} --password ${{ secrets.DEV_HUB_USER_PASSWORD }} --remote ${{ vars.DEV_CLOUD_URL }}
+        run: fluvio cloud login --email ${{ secrets.DEV_HUB_USER_EMAIL }} --password ${{ secrets.DEV_HUB_USER_PASSWORD }} --remote https://dev.infinyon.cloud
       - uses: actions/checkout@v3
       - name: Install zig
         run: ./actions/zig-install.sh ${{ matrix.os }}
