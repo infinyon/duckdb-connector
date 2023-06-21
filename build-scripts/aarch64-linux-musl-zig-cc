@@ -1,3 +1,0 @@
-#!/bin/sh
-
-$FLUVIO_BUILD_ZIG cc -target aarch64-linux-musl $@
