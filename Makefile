@@ -30,6 +30,9 @@ build:
 build_dyn: $(FULL_LIB_NAME)
 	$(CDK) build --release $(RELEASE) $(TARGET_FLAG)
 
+cross_build: $(FULL_LIB_NAME)
+	cross build --release $(TARGET_FLAG)
+
 zig_build: $(FULL_LIB_NAME)
 	cargo zigbuild --release $(TARGET_FLAG)
 
