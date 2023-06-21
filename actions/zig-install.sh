@@ -18,6 +18,7 @@ if [[ "$MATRIX_OS" == "ubuntu-latest" ]]; then
     popd && \
     rm zig-linux-$ARCH-$ZIG_VER.tar.* && \
     echo "FLUVIO_BUILD_LLD=$LLVM_PATH/bin/lld" | tee -a $GITHUB_ENV
+    zig version
 fi
 
 # remove zig
