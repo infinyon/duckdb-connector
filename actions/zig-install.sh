@@ -4,7 +4,7 @@ set -e
 MATRIX_OS=${1}
 ZIG_VER=0.9.1
 LLVM_VER=15
-ARCH=aarch64
+ARCH=x86_64
 echo "installing zig matrix.os=$MATRIX_OS version=$ZIG_VER"
 
 if [[ "$MATRIX_OS" == "ubuntu-latest" ]]; then
@@ -15,6 +15,7 @@ if [[ "$MATRIX_OS" == "ubuntu-latest" ]]; then
     sudo mv zig-linux-$ARCH-$ZIG_VER /usr/local && \
     pushd /usr/local/bin && \
     sudo ln -s ../zig-linux-$ARCH-$ZIG_VER/zig . && \
+    echo "zig installed"
     popd && \
     rm zig-linux-$ARCH-$ZIG_VER.tar.* && \
     echo "FLUVIO_BUILD_LLD=$LLVM_PATH/bin/lld" | tee -a $GITHUB_ENV
