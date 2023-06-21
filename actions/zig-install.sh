@@ -29,7 +29,7 @@ if [[ "$MATRIX_OS" == "ubuntu-cleanup" ]]; then
     sudo rm -rf /usr/local/bin/zig
 fi
 
-if [[ "$MATRIX_OS" == "macos-12" ]]; then
+if [[ "$MATRIX_OS" == "macos-latest" ]]; then
     echo "installing zig on mac"
  #   brew update
     brew install zig && \
