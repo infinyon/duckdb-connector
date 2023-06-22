@@ -34,17 +34,19 @@ jobs:
         run: fluvio install cdk --develop
       - name: Fluvio Login
         run: fluvio cloud login --email ${{ secrets.PROD_HUB_USER_EMAIL }} --password ${{ secrets.PROD_HUB_USER_PASSWORD }}
+      - uses: actions/checkout@v3
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "14.0"
-      - name: Install zig
-        run: ./actions/zig-install.sh ${{ matrix.os }}
-      - name: install zigbuild
-        run: cargo install cargo-zigbuild
+      - name: install cross
+        run: cargo install cross
       - name: Build
-        run: |
-          cargo zigbuild --release  --target ${{ matrix.rust-target }} -p duckdb-sink
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ matrix.rust-target }}
+        run:
+          make cross_build
       - name: Publish
         run: |
           cdk publish --no-build \
