@@ -71,29 +71,26 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
-      - name: Install Rust stable
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.rust-target }}
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "14.0"
-      - name: Install zig
-        run: ./actions/zig-install.sh ${{ matrix.os }}
-      - name: install zigbuild
-        run: cargo install cargo-zigbuild
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Fluvio
+        run: |
+          ./actions/fluvio-install.sh
+          echo "$HOME/.fluvio/bin" >> $GITHUB_PATH
+      - name: install cross
+        run: cargo install cross
       - name: Build
         env:
           GH_TOKEN: ${{ github.token }}
         run:
-          make zig_build
+          make cross_build
 
   done:
     name: Done
     needs:
-      - build
       - check
     runs-on: ubuntu-latest
     steps:
