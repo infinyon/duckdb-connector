@@ -11,7 +11,7 @@ pub struct DuckDB(DuckDbConnection);
 
 impl DuckDB {
     pub(crate) async fn connect(url: &str) -> anyhow::Result<Self> {
-        info!(url, "opening duckdb");
+        info!("opening duckdb");
         Ok(Self(DuckDbConnection::open(url)?))
     }
 
