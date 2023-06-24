@@ -5,6 +5,7 @@ use duckdb::{types::ToSqlOutput, ToSql};
 
 use fluvio_model_sql::Value;
 
+#[derive(Debug)]
 pub(crate) struct DuckDBValue(Value);
 
 impl Deref for DuckDBValue {

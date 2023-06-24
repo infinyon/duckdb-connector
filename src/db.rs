@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use anyhow::Result;
 
 use fluvio_connector_common::tracing::{debug, error, info};
 use fluvio_model_sql::{Insert, Operation};
 
-use duckdb::{Appender, Connection as DuckDbConnection};
+use duckdb::{Appender, Connection as DuckDbConnection, ToSql, params_from_iter};
 
 use crate::model::DuckDBValue;
 
@@ -58,12 +60,30 @@ impl DuckDB {
 pub(crate) fn insert(row: Insert, appender: &mut Appender) -> Result<()> {
     let duck_values: Vec<DuckDBValue> =
         row.values.into_iter().map(|v| v.into()).collect::<Vec<_>>();
-    let binding = duck_values
+     
+    let mut sql_values = vec![];
+    for duck_value in duck_values.iter() {
+        sql_values.push(duck_value.to_sql()?);
+    }
+    
+    print!("duck_values: {:?}", sql_values);
+
+    
+    let binding = sql_values
         .iter()
         .map(|v| v as &dyn duckdb::ToSql)
         .collect::<Vec<_>>();
     let params: &[&dyn duckdb::ToSql] = binding.as_slice();
+   
+   // this cause error
+   // TODO: dyn is too hard to work with, instead use 
+   // low level: https://duckdb.org/docs/api/c/appender
     appender.append_row(params)?;
+    
+    
+   // let params = params_from_iter(duck_values);
+   // println!("params: {:?}", params);
+ //   appender.append_row([params]);
 
     Ok(())
 }

@@ -45,7 +45,7 @@ test_md_dyn: $(FULL_LIB_NAME)
 
 
 test_local:
-	$(CDK) test  --release $(RELEASE)  --config duckdb-local.yaml
+	$(CDK) test  --release $(RELEASE)  --config test/duckdb-local.yaml $(TARGET_FLAG)
 
 
 $(DUCKDB_LIB_DIR)/libduckdb.dylib:

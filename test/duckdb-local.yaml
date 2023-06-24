@@ -1,15 +1,15 @@
 apiVersion: 0.1.0
 meta:
-  version: 0.2.0
+  version: 0.1.0
   name: helsinki-sql
   type: duckdb-sink
   topic: helsinki
   secrets:
-    - name: MD_TOKEN
+
 
 
 duckdb:
-  url: "speed.db"
+  url: ./speed.db
 transforms:
   - uses: infinyon/jolt@0.1.0
     with:

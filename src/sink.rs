@@ -1,25 +1,22 @@
-use std::collections::HashMap;
-
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use url::Url;
 
 use fluvio::Offset;
-use fluvio_connector_common::{tracing::info, LocalBoxSink, Sink};
+use fluvio_connector_common::{tracing::info, LocalBoxSink, Sink, secret::SecretString};
 use fluvio_model_sql::Operation;
 
 use crate::{config::DuckDBConfig, db::DuckDB};
 
 #[derive(Debug)]
 pub(crate) struct DuckDBSink {
-    url: Url,
+    url: String,
 }
 
 impl DuckDBSink {
     pub(crate) fn new(config: &DuckDBConfig) -> Result<Self> {
-        let url = Url::parse(&config.url.resolve()?).context("unable to parse sql url")?;
-
-        Ok(Self { url })
+  
+        Ok(Self { url: config.url.resolve()? })
     }
 }
 
