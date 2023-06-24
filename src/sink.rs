@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use url::Url;
@@ -27,7 +29,7 @@ impl Sink<Operation> for DuckDBSink {
         let db = DuckDB::connect(self.url.as_str()).await?;
         info!("connected to duckdb database");
         let unfold = futures::sink::unfold(db, |mut db: DuckDB, record: Operation| async move {
-            db.execute(record).await?;
+            db.execute(record).await;
             Ok::<_, anyhow::Error>(db)
         });
         Ok(Box::pin(unfold))

@@ -1,64 +1,69 @@
 use anyhow::Result;
 
-use fluvio_connector_common::tracing::{error, info};
+use fluvio_connector_common::tracing::{debug, error, info};
 use fluvio_model_sql::{Insert, Operation};
 
-use duckdb::{params_from_iter, Connection as DuckDbConnection};
+use duckdb::{Appender, Connection as DuckDbConnection};
 
 use crate::model::DuckDBValue;
 
-pub struct DuckDB(DuckDbConnection);
+pub struct DuckDB {
+    conn: DuckDbConnection,
+    appends: HashMap<String, Appender<'static>>,
+}
 
 impl DuckDB {
     pub(crate) async fn connect(url: &str) -> anyhow::Result<Self> {
-        info!("opening duckdb");
-        Ok(Self(DuckDbConnection::open(url)?))
+        info!(url, "opening duckdb");
+        Ok(Self {
+            conn: DuckDbConnection::open(url)?,
+            appends: HashMap::new(),
+        })
     }
 
-    pub(crate) async fn execute(&mut self, operation: Operation) -> anyhow::Result<()> {
+    pub(crate) async fn execute(&mut self, operation: Operation) {
         match operation {
             Operation::Insert(row) => {
-                self.insert(row)?;
+                if let Err(err) = self.insert(row) {
+                    error!("unable to insert duckdb: {}", err);
+                }
             }
             Operation::Upsert(_row) => {
                 todo!()
             }
         }
-        Ok(())
     }
 
     fn insert(&mut self, row: Insert) -> anyhow::Result<()> {
-        if let Err(err) = insert(&self.0, row) {
-            error!("unable to insert duckdb: {}", err);
+        let appenders = &mut self.appends;
+        if !appenders.contains_key(&row.table) {
+            debug!(row.table, "creating appender for table");
+            // This is a hack to get around the lifetime issue with Appender
+            // This should be totally safe since we only are using appender internally
+            let appender: Appender<'static> = unsafe {
+                std::mem::transmute::<Appender, Appender<'static>>(self.conn.appender(&row.table)?)
+            };
+            appenders.insert(row.table.clone(), appender);
         }
+
+        if let Some(appender) = appenders.get_mut(&row.table) {
+            insert(row, appender)?;
+        }
+
         Ok(())
     }
 }
 
 #[allow(clippy::single_char_add_str)]
-pub(crate) fn insert(conn: &DuckDbConnection, row: Insert) -> Result<()> {
-    let mut query = String::from("INSERT INTO ");
-    query.push_str(&row.table);
-    query.push_str(" (");
-    for value in &row.values {
-        query.push_str(&value.column);
-        query.push_str(",");
-    }
-    query.pop();
-    query.push_str(") ");
-    query.push_str(" VALUES (");
-    for _ in 0..row.values.len() {
-        query.push_str("?,");
-    }
-    query.pop();
-    query.push_str(")");
-
-    let mut stmt = conn.prepare(&query)?;
-
-    let ducdb_values: Vec<DuckDBValue> =
+pub(crate) fn insert(row: Insert, appender: &mut Appender) -> Result<()> {
+    let duck_values: Vec<DuckDBValue> =
         row.values.into_iter().map(|v| v.into()).collect::<Vec<_>>();
-    let params = params_from_iter(&ducdb_values);
-    stmt.execute(params)?;
+    let binding = duck_values
+        .iter()
+        .map(|v| v as &dyn duckdb::ToSql)
+        .collect::<Vec<_>>();
+    let params: &[&dyn duckdb::ToSql] = binding.as_slice();
+    appender.append_row(params)?;
 
     Ok(())
 }
