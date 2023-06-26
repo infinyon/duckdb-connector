@@ -1,4 +1,4 @@
-use std::ffi::c_void;
+use std::ffi::{c_void, CStr};
 use std::marker::PhantomData;
 use std::mem::size_of;
 use std::ops::DerefMut;
@@ -9,10 +9,12 @@ use std::{ffi::CString, ops::Deref};
 
 use anyhow::{anyhow, Result};
 use libduckdb_sys::{
-    duckdb_config, duckdb_connection, duckdb_create_logical_type, duckdb_database,
-    duckdb_destroy_value, duckdb_get_int64, duckdb_get_varchar, duckdb_logical_type, duckdb_malloc,
-    duckdb_open_ext, duckdb_value, duckdb_vector, duckdb_vector_assign_string_element_len,
-    duckdb_vector_get_data, duckdb_vector_size, idx_t, DUCKDB_TYPE_DUCKDB_TYPE_BIGINT,
+    duckdb_append_bool, duckdb_appender, duckdb_appender_create, duckdb_appender_end_row,
+    duckdb_appender_error, duckdb_config, duckdb_connect, duckdb_connection,
+    duckdb_create_logical_type, duckdb_database, duckdb_destroy_value, duckdb_get_int64,
+    duckdb_get_varchar, duckdb_logical_type, duckdb_malloc, duckdb_open_ext, duckdb_state,
+    duckdb_value, duckdb_vector, duckdb_vector_assign_string_element_len, duckdb_vector_get_data,
+    duckdb_vector_size, idx_t, DuckDBSuccess, DUCKDB_TYPE_DUCKDB_TYPE_BIGINT,
     DUCKDB_TYPE_DUCKDB_TYPE_BLOB, DUCKDB_TYPE_DUCKDB_TYPE_BOOLEAN, DUCKDB_TYPE_DUCKDB_TYPE_DATE,
     DUCKDB_TYPE_DUCKDB_TYPE_DECIMAL, DUCKDB_TYPE_DUCKDB_TYPE_DOUBLE, DUCKDB_TYPE_DUCKDB_TYPE_ENUM,
     DUCKDB_TYPE_DUCKDB_TYPE_FLOAT, DUCKDB_TYPE_DUCKDB_TYPE_HUGEINT,
@@ -24,15 +26,13 @@ use libduckdb_sys::{
     DUCKDB_TYPE_DUCKDB_TYPE_TINYINT, DUCKDB_TYPE_DUCKDB_TYPE_UBIGINT,
     DUCKDB_TYPE_DUCKDB_TYPE_UINTEGER, DUCKDB_TYPE_DUCKDB_TYPE_UNION,
     DUCKDB_TYPE_DUCKDB_TYPE_USMALLINT, DUCKDB_TYPE_DUCKDB_TYPE_UTINYINT,
-    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR, duckdb_connect, duckdb_appender, duckdb_appender_create,
+    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR,
 };
 
 #[macro_export]
 macro_rules! c_string {
     ($c_str:expr) => {
-        $c_str
-            .as_ptr()
-            .cast::<c_char>()
+        $c_str.as_ptr().cast::<c_char>()
     };
 }
 
@@ -172,7 +172,6 @@ impl From<duckdb_database> for Database {
 }
 
 impl Database {
-
     /// open DuckDB using path
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let path_string = match path.as_ref().to_str() {
@@ -203,11 +202,10 @@ impl Database {
     pub fn connect(&self) -> Connection {
         let mut conn = ptr::null_mut();
         unsafe {
-                duckdb_connect(self.0, &mut conn);
+            duckdb_connect(self.0, &mut conn);
         }
         Connection::from(conn)
     }
-
 }
 
 pub struct Connection(duckdb_connection);
@@ -219,22 +217,23 @@ impl From<duckdb_connection> for Connection {
 }
 
 impl Connection {
-
-    pub fn create_appender(&self,schema: &str, table: &str) -> Result<Appender> {
+    pub fn create_appender(&self, schema: &str, table: &str) -> Result<Appender> {
         let mut appender = ptr::null_mut();
         let c_schema = CString::new(schema)?;
         let c_table = CString::new(table)?;
         unsafe {
-            duckdb_appender_create(self.0, c_string!(c_schema), c_string!(c_table), &mut appender);
+            duckdb_appender_create(
+                self.0,
+                c_string!(c_schema),
+                c_string!(c_table),
+                &mut appender,
+            );
         }
         Ok(Appender(appender))
     }
-
 }
 
-
 pub struct Appender(duckdb_appender);
-
 
 impl From<duckdb_appender> for Appender {
     fn from(appender: duckdb_appender) -> Self {
@@ -242,6 +241,29 @@ impl From<duckdb_appender> for Appender {
     }
 }
 
+impl Appender {
+    /// marke end of row
+    pub fn end_row(&mut self) -> Result<()> {
+        self.check_error(unsafe { duckdb_appender_end_row(self.0) })
+    }
+
+    pub fn append_bool(&mut self, val: bool) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_bool(self.0, val) })
+    }
+
+    /// check error
+    fn check_error(&mut self, state: duckdb_state) -> Result<()> {
+        if state == DuckDBSuccess {
+            return Ok(());
+        }
+        let err_msg = unsafe {
+            let c_err = duckdb_appender_error(self.0);
+            CStr::from_ptr(c_err).to_str()?
+        };
+
+        Err(anyhow::anyhow!("Failed to connect to database: {err_msg}"))
+    }
+}
 
 pub struct Vector<T> {
     duck_ptr: duckdb_vector,

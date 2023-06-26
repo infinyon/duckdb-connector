@@ -7,8 +7,8 @@ use fluvio_model_sql::{Insert, Operation};
 
 use duckdb::{Appender, Connection as DuckDbConnection, ToSql};
 
-use crate::model::DuckDBValue;
 use crate::bind::Database;
+use crate::model::DuckDBValue;
 
 pub struct DuckDB {
     db: Database,
@@ -43,7 +43,7 @@ impl DuckDB {
             debug!(row.table, "creating appender for table");
             // This is a hack to get around the lifetime issue with Appender
             // This should be totally safe since we only are using appender internally
-            /* 
+            /*
             let appender: Appender<'static> = unsafe {
                 std::mem::transmute::<Appender, Appender<'static>>(self.conn.appender(&row.table)?)
             };
