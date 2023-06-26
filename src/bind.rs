@@ -173,7 +173,9 @@ impl From<duckdb_database> for Database {
 }
 
 impl Database {
-    pub fn open(&self, path: impl AsRef<Path>) -> Result<Self> {
+
+    /// open DuckDB using path
+    pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let path_string = match path.as_ref().to_str() {
             Some(path) => path,
             None => return Err(anyhow!("Invalid path")),

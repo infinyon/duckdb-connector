@@ -5,12 +5,13 @@ use anyhow::Result;
 use fluvio_connector_common::tracing::{debug, error, info};
 use fluvio_model_sql::{Insert, Operation};
 
-use duckdb::{params_from_iter, Appender, Connection as DuckDbConnection, ToSql};
+use duckdb::{Appender, Connection as DuckDbConnection, ToSql};
 
 use crate::model::DuckDBValue;
+use crate::bind::Database;
 
 pub struct DuckDB {
-    conn: DuckDbConnection,
+    db: Database,
     appends: HashMap<String, Appender<'static>>,
 }
 
@@ -18,7 +19,7 @@ impl DuckDB {
     pub(crate) async fn connect(url: &str) -> anyhow::Result<Self> {
         info!(url, "opening duckdb");
         Ok(Self {
-            conn: DuckDbConnection::open(url)?,
+            db: Database::open(url)?,
             appends: HashMap::new(),
         })
     }
@@ -42,10 +43,12 @@ impl DuckDB {
             debug!(row.table, "creating appender for table");
             // This is a hack to get around the lifetime issue with Appender
             // This should be totally safe since we only are using appender internally
+            /* 
             let appender: Appender<'static> = unsafe {
                 std::mem::transmute::<Appender, Appender<'static>>(self.conn.appender(&row.table)?)
             };
             appenders.insert(row.table.clone(), appender);
+            */
         }
 
         if let Some(appender) = appenders.get_mut(&row.table) {
