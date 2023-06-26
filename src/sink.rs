@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use url::Url;
 
 use fluvio::Offset;
-use fluvio_connector_common::{tracing::info, LocalBoxSink, Sink, secret::SecretString};
+use fluvio_connector_common::{secret::SecretString, tracing::info, LocalBoxSink, Sink};
 use fluvio_model_sql::Operation;
 
 use crate::{config::DuckDBConfig, db::DuckDB};
@@ -15,8 +15,9 @@ pub(crate) struct DuckDBSink {
 
 impl DuckDBSink {
     pub(crate) fn new(config: &DuckDBConfig) -> Result<Self> {
-  
-        Ok(Self { url: config.url.resolve()? })
+        Ok(Self {
+            url: config.url.resolve()?,
+        })
     }
 }
 

@@ -1,8 +1,8 @@
+mod bind;
 mod config;
 mod db;
 mod model;
 mod sink;
-mod bind;
 
 use config::DuckDBConfig;
 use fluvio_connector_common::{

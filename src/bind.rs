@@ -1,29 +1,18 @@
-use std::ffi::{c_void, CStr};
+use std::ffi::c_void;
 use std::marker::PhantomData;
 use std::mem::size_of;
 use std::ops::DerefMut;
 use std::os::raw::c_char;
 use std::path::Path;
-use std::ptr::{null_mut, self};
+use std::ptr::{self};
 use std::{ffi::CString, ops::Deref};
 
 use anyhow::{anyhow, Result};
 use libduckdb_sys::{
-    duckdb_config,
-    duckdb_connection, duckdb_create_logical_type, duckdb_create_table_function, duckdb_data_chunk,
-    duckdb_data_chunk_get_vector, duckdb_data_chunk_set_size, duckdb_database,
-    duckdb_delete_callback_t, duckdb_destroy_table_function, duckdb_destroy_value,
-    duckdb_function_get_bind_data, duckdb_function_get_init_data, duckdb_function_info,
-    duckdb_function_set_error, duckdb_get_int64, duckdb_get_varchar, duckdb_init_get_column_count,
-    duckdb_init_get_column_index, duckdb_init_info, duckdb_init_set_init_data, duckdb_logical_type,
-    duckdb_malloc, duckdb_register_table_function, duckdb_table_function,
-    duckdb_table_function_add_parameter, duckdb_table_function_bind_t,
-    duckdb_table_function_init_t, duckdb_table_function_set_bind,
-    duckdb_table_function_set_extra_info, duckdb_table_function_set_function,
-    duckdb_table_function_set_init, duckdb_table_function_set_name,
-    duckdb_table_function_supports_projection_pushdown, duckdb_table_function_t, duckdb_value,
-    duckdb_vector, duckdb_vector_assign_string_element_len, duckdb_vector_get_data,
-    duckdb_vector_size, idx_t, DuckDBSuccess, DUCKDB_TYPE_DUCKDB_TYPE_BIGINT,
+    duckdb_config, duckdb_connection, duckdb_create_logical_type, duckdb_database,
+    duckdb_destroy_value, duckdb_get_int64, duckdb_get_varchar, duckdb_logical_type, duckdb_malloc,
+    duckdb_open_ext, duckdb_value, duckdb_vector, duckdb_vector_assign_string_element_len,
+    duckdb_vector_get_data, duckdb_vector_size, idx_t, DUCKDB_TYPE_DUCKDB_TYPE_BIGINT,
     DUCKDB_TYPE_DUCKDB_TYPE_BLOB, DUCKDB_TYPE_DUCKDB_TYPE_BOOLEAN, DUCKDB_TYPE_DUCKDB_TYPE_DATE,
     DUCKDB_TYPE_DUCKDB_TYPE_DECIMAL, DUCKDB_TYPE_DUCKDB_TYPE_DOUBLE, DUCKDB_TYPE_DUCKDB_TYPE_ENUM,
     DUCKDB_TYPE_DUCKDB_TYPE_FLOAT, DUCKDB_TYPE_DUCKDB_TYPE_HUGEINT,
@@ -35,7 +24,7 @@ use libduckdb_sys::{
     DUCKDB_TYPE_DUCKDB_TYPE_TINYINT, DUCKDB_TYPE_DUCKDB_TYPE_UBIGINT,
     DUCKDB_TYPE_DUCKDB_TYPE_UINTEGER, DUCKDB_TYPE_DUCKDB_TYPE_UNION,
     DUCKDB_TYPE_DUCKDB_TYPE_USMALLINT, DUCKDB_TYPE_DUCKDB_TYPE_UTINYINT,
-    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR, duckdb_open_ext, duckdb_free,
+    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR,
 };
 
 #[macro_export]
@@ -54,7 +43,7 @@ macro_rules! duck_error {
         let status = $status;
         if status != libduckdb_sys::DuckDBSuccess {
             let msg = std::ffi::CStr::from_ptr($err).to_str()?;
-            let rust_err =  Err(anyhow::anyhow!("Failed to connect to database: {msg}"));
+            let rust_err = Err(anyhow::anyhow!("Failed to connect to database: {msg}"));
             libduckdb_sys::duckdb_free($err as *mut c_void);
             return rust_err;
         }
@@ -64,7 +53,6 @@ macro_rules! duck_error {
 pub unsafe fn malloc_struct<T>() -> *mut T {
     duckdb_malloc(size_of::<T>()).cast::<T>()
 }
-
 
 pub struct Value(pub(crate) duckdb_value);
 
@@ -154,8 +142,6 @@ impl Deref for LogicalType {
     }
 }
 
-
-
 pub struct Config(duckdb_config);
 
 impl Default for Config {
@@ -187,10 +173,7 @@ impl From<duckdb_database> for Database {
 }
 
 impl Database {
-
-
     pub fn open(&self, path: impl AsRef<Path>) -> Result<Self> {
-
         let path_string = match path.as_ref().to_str() {
             Some(path) => path,
             None => return Err(anyhow!("Invalid path")),
@@ -199,8 +182,16 @@ impl Database {
         let mut db = ptr::null_mut();
         let config = Config::default();
         let mut c_err = std::ptr::null_mut();
-        unsafe {   
-            duck_error!(duckdb_open_ext(as_string!(path_string), &mut db, *config as duckdb_config, &mut c_err),c_err);
+        unsafe {
+            duck_error!(
+                duckdb_open_ext(
+                    as_string!(path_string),
+                    &mut db,
+                    *config as duckdb_config,
+                    &mut c_err
+                ),
+                c_err
+            );
         }
 
         Ok(Self::from(db))
@@ -215,9 +206,7 @@ impl From<duckdb_connection> for Connection {
     }
 }
 
-impl Connection {
-
-}
+impl Connection {}
 
 pub struct Vector<T> {
     duck_ptr: duckdb_vector,
