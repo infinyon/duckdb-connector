@@ -9,15 +9,18 @@ use std::{ffi::CString, ops::Deref};
 
 use anyhow::{anyhow, Result};
 use libduckdb_sys::{
-    duckdb_append_bool, duckdb_appender, duckdb_appender_create, duckdb_appender_end_row,
+    duckdb_append_bool, duckdb_append_double, duckdb_append_float, duckdb_append_int16,
+    duckdb_append_int32, duckdb_append_int64, duckdb_append_int8, duckdb_append_timestamp,
+    duckdb_append_uint16, duckdb_append_uint32, duckdb_append_uint64, duckdb_append_uint8,
+    duckdb_append_varchar_length, duckdb_appender, duckdb_appender_create, duckdb_appender_end_row,
     duckdb_appender_error, duckdb_config, duckdb_connect, duckdb_connection,
     duckdb_create_logical_type, duckdb_database, duckdb_destroy_value, duckdb_get_int64,
     duckdb_get_varchar, duckdb_logical_type, duckdb_malloc, duckdb_open_ext, duckdb_state,
-    duckdb_value, duckdb_vector, duckdb_vector_assign_string_element_len, duckdb_vector_get_data,
-    duckdb_vector_size, idx_t, DuckDBSuccess, DUCKDB_TYPE_DUCKDB_TYPE_BIGINT,
-    DUCKDB_TYPE_DUCKDB_TYPE_BLOB, DUCKDB_TYPE_DUCKDB_TYPE_BOOLEAN, DUCKDB_TYPE_DUCKDB_TYPE_DATE,
-    DUCKDB_TYPE_DUCKDB_TYPE_DECIMAL, DUCKDB_TYPE_DUCKDB_TYPE_DOUBLE, DUCKDB_TYPE_DUCKDB_TYPE_ENUM,
-    DUCKDB_TYPE_DUCKDB_TYPE_FLOAT, DUCKDB_TYPE_DUCKDB_TYPE_HUGEINT,
+    duckdb_timestamp, duckdb_value, duckdb_vector, duckdb_vector_assign_string_element_len,
+    duckdb_vector_get_data, duckdb_vector_size, idx_t, DuckDBSuccess,
+    DUCKDB_TYPE_DUCKDB_TYPE_BIGINT, DUCKDB_TYPE_DUCKDB_TYPE_BLOB, DUCKDB_TYPE_DUCKDB_TYPE_BOOLEAN,
+    DUCKDB_TYPE_DUCKDB_TYPE_DATE, DUCKDB_TYPE_DUCKDB_TYPE_DECIMAL, DUCKDB_TYPE_DUCKDB_TYPE_DOUBLE,
+    DUCKDB_TYPE_DUCKDB_TYPE_ENUM, DUCKDB_TYPE_DUCKDB_TYPE_FLOAT, DUCKDB_TYPE_DUCKDB_TYPE_HUGEINT,
     DUCKDB_TYPE_DUCKDB_TYPE_INTEGER, DUCKDB_TYPE_DUCKDB_TYPE_INTERVAL,
     DUCKDB_TYPE_DUCKDB_TYPE_LIST, DUCKDB_TYPE_DUCKDB_TYPE_MAP, DUCKDB_TYPE_DUCKDB_TYPE_SMALLINT,
     DUCKDB_TYPE_DUCKDB_TYPE_STRUCT, DUCKDB_TYPE_DUCKDB_TYPE_TIME,
@@ -249,6 +252,57 @@ impl Appender {
 
     pub fn append_bool(&mut self, val: bool) -> Result<()> {
         self.check_error(unsafe { duckdb_append_bool(self.0, val) })
+    }
+
+    pub fn append_int8(&mut self, val: i8) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_int8(self.0, val) })
+    }
+
+    pub fn append_u8(&mut self, val: u8) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_uint8(self.0, val as u8) })
+    }
+
+    pub fn append_i16(&mut self, val: i16) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_int16(self.0, val as i16) })
+    }
+
+    pub fn append_u16(&mut self, val: u16) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_uint16(self.0, val as u16) })
+    }
+
+    pub fn append_i32(&mut self, val: i32) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_int32(self.0, val as i32) })
+    }
+
+    pub fn append_u32(&mut self, val: u32) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_uint32(self.0, val as u32) })
+    }
+
+    pub fn append_i64(&mut self, val: i64) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_int64(self.0, val as i64) })
+    }
+
+    pub fn append_u64(&mut self, val: u64) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_uint64(self.0, val as u64) })
+    }
+
+    pub fn append_f32(&mut self, val: f32) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_float(self.0, val as f32) })
+    }
+
+    pub fn append_f64(&mut self, val: f64) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_double(self.0, val as f64) })
+    }
+
+    pub fn append_string(&mut self, val: &str) -> Result<()> {
+        let c_val = CString::new(val)?;
+        self.check_error(unsafe {
+            duckdb_append_varchar_length(self.0, c_string!(c_val), val.len() as idx_t)
+        })
+    }
+
+    pub fn append_timestamp(&mut self, val: duckdb_timestamp) -> Result<()> {
+        self.check_error(unsafe { duckdb_append_timestamp(self.0, val) })
     }
 
     /// check error
