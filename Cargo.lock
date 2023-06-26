@@ -1080,6 +1080,7 @@ dependencies = [
  "fluvio-connector-common",
  "fluvio-model-sql",
  "futures",
+ "libduckdb-sys",
  "rust_decimal",
  "serde",
  "serde_json",

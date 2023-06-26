@@ -39,6 +39,8 @@ impl DuckDB {
     fn insert(&mut self, row: Insert) -> anyhow::Result<()> {
         let appenders = &mut self.appends;
         if !appenders.contains_key(&row.table) {
+
+            
             debug!(row.table, "creating appender for table");
             // This is a hack to get around the lifetime issue with Appender
             // This should be totally safe since we only are using appender internally
