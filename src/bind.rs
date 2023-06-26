@@ -24,14 +24,13 @@ use libduckdb_sys::{
     DUCKDB_TYPE_DUCKDB_TYPE_TINYINT, DUCKDB_TYPE_DUCKDB_TYPE_UBIGINT,
     DUCKDB_TYPE_DUCKDB_TYPE_UINTEGER, DUCKDB_TYPE_DUCKDB_TYPE_UNION,
     DUCKDB_TYPE_DUCKDB_TYPE_USMALLINT, DUCKDB_TYPE_DUCKDB_TYPE_UTINYINT,
-    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR,
+    DUCKDB_TYPE_DUCKDB_TYPE_UUID, DUCKDB_TYPE_DUCKDB_TYPE_VARCHAR, duckdb_connect, duckdb_appender, duckdb_appender_create,
 };
 
 #[macro_export]
-macro_rules! as_string {
-    ($x:expr) => {
-        std::ffi::CString::new($x)
-            .expect("c string")
+macro_rules! c_string {
+    ($c_str:expr) => {
+        $c_str
             .as_ptr()
             .cast::<c_char>()
     };
@@ -184,10 +183,11 @@ impl Database {
         let mut db = ptr::null_mut();
         let config = Config::default();
         let mut c_err = std::ptr::null_mut();
+        let c_path_str = CString::new(path_string)?;
         unsafe {
             duck_error!(
                 duckdb_open_ext(
-                    as_string!(path_string),
+                    c_string!(c_path_str),
                     &mut db,
                     *config as duckdb_config,
                     &mut c_err
@@ -198,6 +198,16 @@ impl Database {
 
         Ok(Self::from(db))
     }
+
+    /// opens a connection to the database
+    pub fn connect(&self) -> Connection {
+        let mut conn = ptr::null_mut();
+        unsafe {
+                duckdb_connect(self.0, &mut conn);
+        }
+        Connection::from(conn)
+    }
+
 }
 
 pub struct Connection(duckdb_connection);
@@ -208,7 +218,30 @@ impl From<duckdb_connection> for Connection {
     }
 }
 
-impl Connection {}
+impl Connection {
+
+    pub fn create_appender(&self,schema: &str, table: &str) -> Result<Appender> {
+        let mut appender = ptr::null_mut();
+        let c_schema = CString::new(schema)?;
+        let c_table = CString::new(table)?;
+        unsafe {
+            duckdb_appender_create(self.0, c_string!(c_schema), c_string!(c_table), &mut appender);
+        }
+        Ok(Appender(appender))
+    }
+
+}
+
+
+pub struct Appender(duckdb_appender);
+
+
+impl From<duckdb_appender> for Appender {
+    fn from(appender: duckdb_appender) -> Self {
+        Self(appender)
+    }
+}
+
 
 pub struct Vector<T> {
     duck_ptr: duckdb_vector,
