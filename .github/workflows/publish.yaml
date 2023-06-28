@@ -4,6 +4,9 @@ permissions: read-all
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - v*
 
 jobs:
   linux:
