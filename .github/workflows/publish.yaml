@@ -26,7 +26,7 @@ jobs:
         run: |
           curl -fsS https://packages.fluvio.io/v1/install.sh | bash
           echo "$HOME/.fluvio/bin" >> $GITHUB_PATH
-      - name: Install Rust ${{ matrix.rust=target }}
+      - name: Install Rust ${{ matrix.rust-target }}
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
