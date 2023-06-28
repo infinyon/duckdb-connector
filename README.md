@@ -41,7 +41,7 @@ To connect to Motherduck server, use prefix: `md`.  For example, `md://motherduc
 ```yaml
 apiVersion: 0.1.0
 meta:
-  version: 0.1.3
+  version: 0.1.0
   name: duckdb-connector
   type: duckdb-sink
   topic: fluvio-topic-source
