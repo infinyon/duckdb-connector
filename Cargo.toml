@@ -27,7 +27,7 @@ uuid = { version = "1.3", default-features = false }
 duckdb = { version = "0.8.1", features = ["bundled"] }
 
 fluvio = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.12" }
-fluvio-connector-common = { features = ["derive"], git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.12" }
+fluvio-connector-common = { features = ["derive"], git = "https://github.com/infinyon/fluvio.git", tag = "v0.10.13" }
 fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", tag = "v0.3.0" }
 
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
