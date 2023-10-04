@@ -38,7 +38,7 @@ jobs:
         run: fluvio install cdk --develop
       - name: Fluvio Login
         run: fluvio cloud login --email ${{ secrets.PROD_HUB_USER_EMAIL }} --password ${{ secrets.PROD_HUB_USER_PASSWORD }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
