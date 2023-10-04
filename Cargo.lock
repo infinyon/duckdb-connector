@@ -1421,7 +1421,7 @@ dependencies = [
 [[package]]
 name = "fluvio-model-sql"
 version = "0.0.0"
-source = "git+https://github.com/infinyon/sql-connector.git?tag=v0.3.0#60b1bd562695a537c12820a9bc92a9b663e04e1c"
+source = "git+https://github.com/infinyon/sql-connector.git?tag=v0.3.3#50d97a2bf9323c80eadb1145342d25ed134ddc1c"
 dependencies = [
  "serde",
 ]
