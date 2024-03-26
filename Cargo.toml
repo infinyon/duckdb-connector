@@ -23,7 +23,7 @@ serde_json = { version = "1", default-features = false }
 url = { version = "2.5", default-features = false, features = ["serde"] }
 rust_decimal = { version = "1.34", default-features = false }
 chrono = { version = "0.4", default-features = false }
-uuid = { version = "1.7", default-features = false }
+uuid = { version = "1.8", default-features = false }
 duckdb = { version = "0.10.1", features = ["bundled"] }
 
 fluvio = { git = "https://github.com/infinyon/fluvio.git", rev = "d9a76327b674614c7373a9c12eb6a0ed2fcc4dc0" }
