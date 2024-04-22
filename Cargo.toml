@@ -28,7 +28,7 @@ duckdb = { version = "0.10.1", features = ["bundled"] }
 
 fluvio = { git = "https://github.com/infinyon/fluvio.git", rev = "d9a76327b674614c7373a9c12eb6a0ed2fcc4dc0" }
 fluvio-connector-common = { features = ["derive"], git = "https://github.com/infinyon/fluvio.git", rev = "d9a76327b674614c7373a9c12eb6a0ed2fcc4dc0" }
-fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", tag = "v0.3.3" }
+fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", tag = "v0.4.0" }
 
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
