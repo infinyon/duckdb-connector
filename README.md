@@ -128,16 +128,11 @@ transforms:
 
 You can use Fluvio `cdk` tool to deploy the connector:
 ```bash
-fluvio install cdk
-```
-and then:
-```bash
 cdk deploy start --config connector-config.yaml
 ```
 To delete the connector run:
 ```bash
-cdk deploy shutdown --config connector-config.yaml
-
+cdk deploy shutdown --name duckdb-connector
 ```
 After you run the connector you will see records in your database table.
 
