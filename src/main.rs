@@ -11,7 +11,7 @@ use fluvio_connector_common::{
     Result, Sink,
 };
 use fluvio_model_sql::Operation;
-use futures::SinkExt;
+use futures::{SinkExt, StreamExt};
 use sink::DuckDBSink;
 
 #[connector(sink)]
