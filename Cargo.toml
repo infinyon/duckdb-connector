@@ -26,7 +26,7 @@ chrono = { version = "0.4", default-features = false }
 uuid = { version = "1.8", default-features = false }
 duckdb = { version = "0.10.2", features = ["bundled"] }
 
-fluvio = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.11.8" }
+fluvio = { git = "https://github.com/infinyon/fluvio.git", tag = "v0.11.9" }
 fluvio-connector-common = { features = ["derive"], git = "https://github.com/infinyon/fluvio.git", tag = "v0.11.8" }
 fluvio-model-sql = { git = "https://github.com/infinyon/sql-connector.git", tag = "v0.4.1" }
 
